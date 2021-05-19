@@ -1,0 +1,64 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: project-service
+  labels:
+    app: project-service
+spec:
+  type: ClusterIP
+  selector:
+    app: project-service
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "project-service"
+  labels:
+    app: project-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project-service
+  template:
+    metadata:
+      labels:
+        app: project-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "project-service"
+        dapr.io/app-port: "8080"
+        dapr.io/app-protocol: "http"
+    spec:
+      containers:
+      - name: project-service
+        image: project-service
+        ports:
+        - containerPort: 8080
+        imagePullPolicy: IfNotPresent
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: project-service-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: alpaca.example.com
+    http:
+      paths:
+      - path: /project-service(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: project-service
+            port:
+              number: 80
+

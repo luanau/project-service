@@ -1,0 +1,14 @@
+Dockerfile
+.dockerignore
+.env
+.git
+.gitignore
+AUTHORS.md
+CONTRIBUTING.md
+LICENSE
+Makefile
+NOTICE
+README.md
+workflow.md
+deployment.md
+deploy/
